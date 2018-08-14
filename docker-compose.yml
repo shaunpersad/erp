@@ -1,0 +1,14 @@
+version: '2.1'
+services:
+
+  erp:
+    build: .
+    container_name: erp
+    image: shaunpersad/ctms
+    command: npm start
+    env_file: .env.local
+    ports:
+      - '3000:3000'
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules

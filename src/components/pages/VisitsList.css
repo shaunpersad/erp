@@ -1,0 +1,15 @@
+.visits-list .radio label {
+    padding-right: 5px;
+}
+.visits-list .select {
+    display: inline-block;
+    padding-left: 10px;
+}
+
+.filters {
+    display: none;
+}
+
+.pull-right button {
+    margin-left: 5px;
+}
