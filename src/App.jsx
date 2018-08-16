@@ -6,12 +6,11 @@ import MainLayout from './components/layouts/MainLayout.jsx';
 import LoginLayout from './components/layouts/LoginLayout.jsx';
 import NotFoundLayout from './components/layouts/NotFoundLayout.jsx';
 
-import VisitsList from './components/pages/VisitsList.jsx';
-import Visit from './components/pages/Visit.jsx';
+import OverviewPage from './components/pages/overview/OverviewPage.jsx';
+import SchedulePage from './components/pages/schedule/SchedulePage.jsx';
 
 import UserContext from './contexts/UserContext.jsx';
 
-import logo from './logo.svg';
 import './App.css';
 
 class App extends Component {
@@ -36,13 +35,6 @@ class App extends Component {
         };
     }
 
-    notFound = () => {
-
-        return (
-            <Redirect to="/visits" />
-        );
-    };
-
     render() {
         return (
             <div className="app">
@@ -55,11 +47,11 @@ class App extends Component {
 
                             <Route path="/login" component={LoginLayout} />
 
-                            <Route path="/visits/:id" render={this.makeMainLayout(Visit)} />
+                            <Route exact path="/" component={this.makeMainLayout(OverviewPage)} />
 
-                            <Route path="/visits" render={this.makeMainLayout(VisitsList)} />
+                            <Route path="/schedule" render={this.makeMainLayout(SchedulePage)} />
 
-                            <Route render={this.notFound} />
+                            <Route component={NotFoundLayout} />
 
                         </Switch>
 

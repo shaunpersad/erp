@@ -1,15 +1,18 @@
-.visits-list .radio label {
+.schedule-page {
+
+  .radio label {
     padding-right: 5px;
-}
-.visits-list .select {
+  }
+  .select {
     display: inline-block;
     padding-left: 10px;
-}
+  }
 
-.filters {
+  .filters {
     display: none;
-}
+  }
 
-.pull-right button {
+  .pull-right button {
     margin-left: 5px;
+  }
 }
