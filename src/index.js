@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import 'react-table/react-table.css';
+import 'react-datepicker/dist/react-datepicker.css';
 import './index.css';
 import App from './App.jsx';
 import registerServiceWorker from './registerServiceWorker';

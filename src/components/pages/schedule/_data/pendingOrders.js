@@ -1,11 +1,12 @@
 const pendingOrders = [
     {
         id: 'order-6',
-        createdAt: '2018-08-15'
+        status: 'pending'
     },
     {
         id: 'order-7',
-        createdAt: '2018-08-15'
+        status: 'blocked',
+        reason: 'Not enough material'
     }
 ];
 

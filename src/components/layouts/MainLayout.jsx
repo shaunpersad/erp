@@ -1,9 +1,6 @@
 import React from 'react';
-import {
-    Link,
-    Route,
-    Redirect
-} from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import { Navbar, Nav } from 'react-bootstrap';
 
 import './MainLayout.css';
 
@@ -14,33 +11,30 @@ class MainLayout extends React.Component {
         return (
             <div className="main-layout">
 
-                <nav className="navbar navbar-inverse navbar-fixed-top">
-                    <div className="container-fluid">
-                        <div className="navbar-header">
-                            <button type="button" className="navbar-toggle collapsed" data-toggle="collapse"
-                                    data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-                                <span className="sr-only">Toggle navigation</span>
-                                <span className="icon-bar"/>
-                                <span className="icon-bar"/>
-                                <span className="icon-bar"/>
-                            </button>
+                <Navbar inverse fixedTop fluid collapseOnSelect>
+                    <Navbar.Header>
+                        <Navbar.Brand>
                             <Link className="navbar-brand" to="/">ERP</Link>
-                        </div>
-                        <div id="navbar" className="navbar-collapse collapse">
-                            <ul className="nav navbar-nav navbar-right">
-                                <li>
-                                    <a href="#">Help</a>
-                                </li>
-                                <li>
-                                    <a href="#">Logout</a>
-                                </li>
-                            </ul>
-                            <form className="navbar-form navbar-right">
-                                <input type="text" className="form-control" placeholder="Search..." />
-                            </form>
-                        </div>
-                    </div>
-                </nav>
+                        </Navbar.Brand>
+                        <Navbar.Toggle />
+                    </Navbar.Header>
+                    <Navbar.Collapse>
+
+                        <Nav pullRight>
+                            <li>
+                                <form className="navbar-form">
+                                    <input type="text" className="form-control" placeholder="Search..." />
+                                </form>
+                            </li>
+                            <li>
+                                <a href="#">Help</a>
+                            </li>
+                            <li>
+                                <a href="#">Logout</a>
+                            </li>
+                        </Nav>
+                    </Navbar.Collapse>
+                </Navbar>
 
                 <div className="container-fluid">
                     <div className="row">

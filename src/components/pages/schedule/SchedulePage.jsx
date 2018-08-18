@@ -1,6 +1,6 @@
 import React from 'react';
 import moment from 'moment';
-
+import DatePicker from 'react-datepicker';
 import './SchedulePage.css';
 
 import ScheduleList from './ScheduleList.jsx';
@@ -38,10 +38,20 @@ class SchedulePage extends React.Component {
         });
     }
 
-    onChangeView({ currentTarget: { value: view } }) {
+    onChangeView = ({ currentTarget: { value: view } }) => {
 
         this.setState({ view });
-    }
+    };
+
+    onChangeStartDate = startDate => {
+
+        this.setState({ startDate });
+    };
+
+    onChangeEndDate = endDate => {
+
+        this.setState({ endDate });
+    };
 
     get viewOptions() {
 
@@ -61,7 +71,7 @@ class SchedulePage extends React.Component {
 
     get view() {
 
-        const { loading, view } = this.state;
+        const { loading, view, startDate, endDate } = this.state;
 
         if (loading) {
             return 'Loading...';
@@ -70,7 +80,11 @@ class SchedulePage extends React.Component {
         const Component = view === 'list' ? ScheduleList : ScheduleCalendar;
 
         return (
-            <Component {...this.state} />
+            <Component
+                {...this.state}
+                now={this.props.now}
+                key={`${startDate.format('YYYY-MM-DD')}|${endDate.format('YYYY-MM-DD')}`}
+            />
         );
     }
 
@@ -79,10 +93,29 @@ class SchedulePage extends React.Component {
         return (
             <div className="schedule-page">
 
-                <div className="clearfix">
+                <div className="clearfix page-options">
                     <div className="pull-left">
-                        <div className="radio">
-                            {this.viewOptions}
+                        <div className="filters">
+                            <div className="view-options">
+                                {this.viewOptions}
+                            </div>
+                            <div className="date-range">
+                                <DatePicker
+                                    startDate={this.state.startDate}
+                                    endDate={this.state.endDate}
+                                    className="form-control"
+                                    selected={this.state.startDate}
+                                    onSelect={this.onChangeStartDate}
+                                />
+                                <div>-</div>
+                                <DatePicker
+                                    startDate={this.state.startDate}
+                                    endDate={this.state.endDate}
+                                    className="form-control"
+                                    selected={this.state.endDate}
+                                    onSelect={this.onChangeEndDate}
+                                />
+                            </div>
                         </div>
                     </div>
                     <div className="pull-right">

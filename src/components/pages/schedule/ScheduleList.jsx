@@ -1,10 +1,50 @@
 import React from 'react';
+import moment from 'moment';
 import ReactTable from 'react-table';
 import { Link } from 'react-router-dom';
 
 import './ScheduleList.css';
 
 class ScheduleList extends React.Component {
+
+    state = {
+        id: '',
+        status: '',
+        line: '',
+        shift: '',
+        date: this.props.now.isBetween(this.props.startDate, this.props.endDate) ? this.props.now.format('YYYY-MM-DD') : '',
+        openSlots: 'hide'
+    };
+
+    onChangeId = ({ currentTarget: { value: id } }) => {
+
+        this.setState({ id });
+    };
+
+    onChangeStatus = ({ currentTarget: { value: status } }) => {
+
+        this.setState({ status });
+    };
+
+    onChangeLine = ({ currentTarget: { value: line } }) => {
+
+        this.setState({ line });
+    };
+
+    onChangeShift = ({ currentTarget: { value: shift } }) => {
+
+        this.setState({ shift });
+    };
+
+    onChangeDate = ({ currentTarget: { value: date } }) => {
+
+        this.setState({ date });
+    };
+
+    onChangeOpenSlots = ({ currentTarget: { value: openSlots } }) => {
+
+        this.setState({ openSlots });
+    };
 
     render() {
 
@@ -16,7 +56,7 @@ class ScheduleList extends React.Component {
         const dates = [];
         const unique = {};
 
-        scheduledOrders.forEach(order => {
+        scheduledOrders.concat(pendingOrders).forEach(order => {
 
             if (!unique[order.date]) {
                 unique[order.date] = {};
@@ -28,18 +68,46 @@ class ScheduleList extends React.Component {
                 unique[order.date][order.line][order.shift] = true;
             }
 
+            if (this.state.id && !order.id.startsWith(this.state.id)) {
+                return;
+            }
+            if(this.state.status && order.status !== this.state.status) {
+                return;
+            }
+
+            switch(this.state.line) {
+                case 'unassigned':
+                    if (!!order.line) {
+                        return;
+                    }
+                    break;
+                case '':
+                    break;
+                default:
+                    if (this.state.line !== order.line) {
+                        return;
+                    }
+                    break;
+            }
+            if(this.state.shift && order.shift !== this.state.shift) {
+                return;
+            }
+            if(this.state.date && order.date && order.date !== this.state.date) {
+                return;
+            }
+
             data.push(order);
-        });
-
-        pendingOrders.forEach(({ id }) => {
-
-            data.push({ id });
         });
 
         while (end !== currentDate.format(format)) {
 
             const date = currentDate.format('YYYY-MM-DD');
+            currentDate.add(1, 'day');
             dates.push(date);
+
+            if (this.state.openSlots === 'hide') {
+                continue;
+            }
 
             if (!unique[date]) {
                 unique[date] = {};
@@ -59,8 +127,6 @@ class ScheduleList extends React.Component {
                     }
                 });
             });
-
-            currentDate.add(1, 'day');
         }
 
 
@@ -68,74 +134,91 @@ class ScheduleList extends React.Component {
 
         const columns = [
             {
+                Header: 'Order ID',
+                accessor: 'id',
+                Cell: props => props.value || '-'
+            }, {
+                Header: 'Status',
+                accessor: 'status',
+                Filter: ({ filter, onChange }) => (
+                    <select
+                        onChange={this.onChangeId}
+                        style={{ width: "100%" }}
+                        value={this.state.id}
+                    >
+                        {statuses.map(status => (
+                            <option key={status} value={status}>{status}</option>
+                        )).concat(
+                            <option key="all" value="">All</option>
+                        )}
+                    </select>
+                )
+            },
+            {
                 Header: 'Line',
                 className: 'first',
                 accessor: 'line',
-                Cell: props => <Link to={`/lines/${props.value}`}>{props.value}</Link>,
+                Cell: props => (props.value ? (
+                    <Link to={`/lines/${props.value}`}>{props.value}</Link>
+                ): 'unassigned'),
                 Filter: ({ filter, onChange }) => (
                     <select
-                        onChange={event => onChange(event.target.value)}
+                        onChange={this.onChangeLine}
                         style={{ width: "100%" }}
-                        value={filter? filter.value: ''}
+                        value={this.state.line}
                     >
                         {lines.map(line => (
-                            <option value={line}>{line}</option>
+                            <option key={line} value={line}>{line}</option>
                         )).concat(
-                            <option value="">All</option>
+                            <option key="unassigned" value="unassigned">Unassigned</option>,
+                            <option key="all" value="">All</option>
                         )}
                     </select>
                 )
             }, {
                 Header: 'Shift',
                 accessor: 'shift',
+                Cell: props => props.value || '-',
                 Filter: ({ filter, onChange }) => (
                     <select
-                        onChange={event => onChange(event.target.value)}
+                        onChange={this.onChangeShift}
                         style={{ width: "100%" }}
-                        value={filter? filter.value: ''}
+                        value={this.state.shift}
                     >
                         {shifts.map(shift => (
-                            <option value={shift}>{shift}</option>
+                            <option key={shift} value={shift}>{shift}</option>
                         )).concat(
-                            <option value="">All</option>
+                            <option key="all" value="">All</option>
                         )}
                     </select>
                 )
             },  {
                 Header: 'Date',
                 accessor: 'date',
+                Cell: props => props.value || '-',
                 Filter: ({ filter, onChange }) => (
                     <select
-                        onChange={event => onChange(event.target.value)}
+                        onChange={this.onChangeDate}
                         style={{ width: "100%" }}
-                        value={filter? filter.value: ''}
+                        value={this.state.date}
                     >
-                        {Object.keys(dates).map(date => (
-                            <option value={date}>{date}</option>
+                        {dates.map(date => (
+                            <option key={date} value={date}>{date}</option>
                         )).concat(
-                            <option value="">All</option>
+                            <option key="all" value="">All</option>
                         )}
                     </select>
                 )
-            }, {
-                Header: 'Order ID',
-                accessor: 'id',
-                Cell: props => props.value || '-',
-                Aggregated: () => ''
-            }, {
-                Header: 'Status',
-                accessor: 'status',
+            },  {
+                Header: 'Open Slots',
                 Filter: ({ filter, onChange }) => (
                     <select
-                        onChange={event => onChange(event.target.value)}
+                        onChange={this.onChangeOpenSlots}
                         style={{ width: "100%" }}
-                        value={filter? filter.value: ''}
+                        value={this.state.openSlots}
                     >
-                        {statuses.map(status => (
-                            <option value={status}>{status}</option>
-                        )).concat(
-                            <option value="">All</option>
-                        )}
+                        <option value="show">Show</option>
+                        <option value="hide">Hide</option>
                     </select>
                 )
             }
