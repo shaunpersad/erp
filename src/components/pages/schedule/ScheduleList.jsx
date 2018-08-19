@@ -1,5 +1,4 @@
 import React from 'react';
-import moment from 'moment';
 import ReactTable from 'react-table';
 import { Link } from 'react-router-dom';
 
@@ -12,7 +11,7 @@ class ScheduleList extends React.Component {
         status: '',
         line: '',
         shift: '',
-        date: this.props.now.isBetween(this.props.startDate, this.props.endDate) ? this.props.now.format('YYYY-MM-DD') : '',
+        date: '',
         openSlots: 'hide'
     };
 
@@ -55,6 +54,7 @@ class ScheduleList extends React.Component {
         const data = [];
         const dates = [];
         const unique = {};
+        let hasDate = false;
 
         scheduledOrders.concat(pendingOrders).forEach(order => {
 
@@ -101,9 +101,13 @@ class ScheduleList extends React.Component {
 
         while (end !== currentDate.format(format)) {
 
-            const date = currentDate.format('YYYY-MM-DD');
+            const date = currentDate.format(format);
             currentDate.add(1, 'day');
             dates.push(date);
+
+            if (date === this.state.date) {
+                hasDate = true;
+            }
 
             if (this.state.openSlots === 'hide') {
                 continue;
@@ -135,6 +139,7 @@ class ScheduleList extends React.Component {
         const columns = [
             {
                 Header: 'Order ID',
+                className: 'first',
                 accessor: 'id',
                 Cell: props => props.value || '-'
             }, {
@@ -156,7 +161,6 @@ class ScheduleList extends React.Component {
             },
             {
                 Header: 'Line',
-                className: 'first',
                 accessor: 'line',
                 Cell: props => (props.value ? (
                     <Link to={`/lines/${props.value}`}>{props.value}</Link>
@@ -200,7 +204,7 @@ class ScheduleList extends React.Component {
                     <select
                         onChange={this.onChangeDate}
                         style={{ width: "100%" }}
-                        value={this.state.date}
+                        value={hasDate ? this.state.date : ''}
                     >
                         {dates.map(date => (
                             <option key={date} value={date}>{date}</option>
