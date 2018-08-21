@@ -138,30 +138,9 @@ class ScheduleList extends React.Component {
 
         const columns = [
             {
-                Header: 'Order ID',
-                className: 'first',
-                accessor: 'id',
-                Cell: props => props.value || '-'
-            }, {
-                Header: 'Status',
-                accessor: 'status',
-                Filter: ({ filter, onChange }) => (
-                    <select
-                        onChange={this.onChangeId}
-                        style={{ width: "100%" }}
-                        value={this.state.id}
-                    >
-                        {statuses.map(status => (
-                            <option key={status} value={status}>{status}</option>
-                        )).concat(
-                            <option key="all" value="">All</option>
-                        )}
-                    </select>
-                )
-            },
-            {
                 Header: 'Line',
                 accessor: 'line',
+                className: 'first',
                 Cell: props => (props.value ? (
                     <Link to={`/lines/${props.value}`}>{props.value}</Link>
                 ): 'unassigned'),
@@ -175,6 +154,23 @@ class ScheduleList extends React.Component {
                             <option key={line} value={line}>{line}</option>
                         )).concat(
                             <option key="unassigned" value="unassigned">Unassigned</option>,
+                            <option key="all" value="">All</option>
+                        )}
+                    </select>
+                )
+            },  {
+                Header: 'Date',
+                accessor: 'date',
+                Cell: props => props.value || '-',
+                Filter: ({ filter, onChange }) => (
+                    <select
+                        onChange={this.onChangeDate}
+                        style={{ width: "100%" }}
+                        value={hasDate ? this.state.date : ''}
+                    >
+                        {dates.map(date => (
+                            <option key={date} value={date}>{date}</option>
+                        )).concat(
                             <option key="all" value="">All</option>
                         )}
                     </select>
@@ -196,18 +192,22 @@ class ScheduleList extends React.Component {
                         )}
                     </select>
                 )
-            },  {
-                Header: 'Date',
-                accessor: 'date',
-                Cell: props => props.value || '-',
+            },
+            {
+                Header: 'Order ID',
+                accessor: 'id',
+                Cell: props => props.value || '-'
+            }, {
+                Header: 'Status',
+                accessor: 'status',
                 Filter: ({ filter, onChange }) => (
                     <select
-                        onChange={this.onChangeDate}
+                        onChange={this.onChangeId}
                         style={{ width: "100%" }}
-                        value={hasDate ? this.state.date : ''}
+                        value={this.state.id}
                     >
-                        {dates.map(date => (
-                            <option key={date} value={date}>{date}</option>
+                        {statuses.map(status => (
+                            <option key={status} value={status}>{status}</option>
                         )).concat(
                             <option key="all" value="">All</option>
                         )}
@@ -242,11 +242,11 @@ class ScheduleList extends React.Component {
                             desc: false
                         },
                         {
-                            id: 'shift',
+                            id: 'date',
                             desc: false
                         },
                         {
-                            id: 'date',
+                            id: 'shift',
                             desc: false
                         }
                     ]}

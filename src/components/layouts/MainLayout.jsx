@@ -23,14 +23,14 @@ class MainLayout extends React.Component {
                         <Nav pullRight>
                             <li>
                                 <form className="navbar-form">
-                                    <input type="text" className="form-control" placeholder="Search..." />
+                                    <input type="text" className="form-control" placeholder="Universal search" />
                                 </form>
                             </li>
                             <li>
-                                <a href="#">Help</a>
+                                <Link to="/help">Help</Link>
                             </li>
                             <li>
-                                <a href="#">Logout</a>
+                                <Link to="/logout">Logout</Link>
                             </li>
                         </Nav>
                     </Navbar.Collapse>
@@ -48,6 +48,9 @@ class MainLayout extends React.Component {
                                 </li>
                                 <li>
                                     <Link to="/inventory">Inventory</Link>
+                                </li>
+                                <li>
+                                    <Link to="/production">Production</Link>
                                 </li>
                             </ul>
                             <ul className="nav nav-sidebar">
@@ -78,8 +81,7 @@ class MainLayout extends React.Component {
                             <div className="content">
 
                                 <ol className="breadcrumb">
-                                    <li><a href="#">Visits</a></li>
-                                    <li className="active">All</li>
+                                    <li className="active">Schedule</li>
                                 </ol>
 
                                 <this.props.Component />
