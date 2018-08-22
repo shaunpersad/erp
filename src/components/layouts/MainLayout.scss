@@ -28,10 +28,10 @@
     bottom: 0;
     left: 0;
     width: 45px;
-    transition: width 150ms;
+    transition: width 150ms cubic-bezier(0.0, 0.0, 0.2, 1);
 
     .nav-sidebar {
-      padding-bottom: 15px;
+      padding-top: 15px;
       > li {
         > a {
           position: relative;
@@ -40,7 +40,7 @@
             top: 10px;
             left: -1000px;
             opacity: 0;
-            transition: opacity 50ms;
+            transition: opacity 50ms cubic-bezier(0.0, 0.0, 0.2, 1);
             transition-delay: 150ms;
           }
         }
