@@ -7,21 +7,20 @@ import ScheduleList from './ScheduleList.jsx';
 import ScheduleCalendar from './ScheduleCalendar.jsx';
 
 import lines from './_data/lines';
-import shifts from './_data/shifts';
-import scheduledOrders from './_data/scheduledOrders';
-import pendingOrders from './_data/pendingOrders';
-import statuses from './_data/statuses';
+import products from './_data/products';
+import components from './_data/components';
+import orders from './_data/orders';
 
 class SchedulePage extends React.Component {
 
     state = {
         loading: true,
         lines: null,
-        shifts: null,
-        scheduledOrders: null,
-        pendingOrders: null,
-        statuses: null,
-        view: this.props.viewOptions[0],
+        products: null,
+        components: null,
+        orders: null,
+        productionRequests: [],
+        scheduledShifts: [],
         startDate: this.props.now.clone().startOf('week'),
         endDate: this.props.now.clone().endOf('week')
     };
@@ -31,17 +30,11 @@ class SchedulePage extends React.Component {
         this.setState({
             loading: false,
             lines,
-            shifts,
-            scheduledOrders,
-            pendingOrders,
-            statuses
+            products,
+            components,
+            orders,
         });
     }
-
-    onChangeView = ({ currentTarget: { value: view } }) => {
-
-        this.setState({ view });
-    };
 
     onChangeStartDate = startDate => {
 
@@ -53,42 +46,59 @@ class SchedulePage extends React.Component {
         this.setState({ endDate });
     };
 
-    get viewOptions() {
+    get orders() {
 
-        return this.props.viewOptions.map(viewOption => (
-            <label key={viewOption}>
-                <input
-                    type="radio"
-                    name="view"
-                    value={viewOption}
-                    checked={this.state.view === viewOption}
-                    onChange={this.onChangeView}
-                />
-                {viewOption}
-            </label>
+        if (this.state.orders.length === 0) {
+
+            return (
+                <li key="none" className="list-group-item">
+                    None
+                </li>
+            );
+        }
+
+        return this.state.orders.map(order => (
+            <li key={order.id} className="list-group-item">
+
+                <p className="list-group-item-text">{order.productId} ({order.quantity})</p>
+                <small className="list-group-item-text">
+                    {order.dateDue.format('YYYY-MM-DD')}
+                </small>
+            </li>
         ));
     }
 
-    get view() {
+    get productionRequests() {
 
-        const { loading, view, startDate, endDate } = this.state;
+        if (this.state.productionRequests.length === 0) {
 
-        if (loading) {
-            return 'Loading...';
+            return (
+                <li key="none" className="list-group-item">
+                    None
+                </li>
+            );
         }
 
-        const Component = view === 'list' ? ScheduleList : ScheduleCalendar;
+        return this.state.productionRequests.map(productionRequest => (
+            <li key={productionRequest.id} className="list-group-item">
+                <span className="badge">{productionRequest.goal}</span>
+                {productionRequest.productId}
+            </li>
+        ));
+    }
+
+    get scheduledShifts() {
 
         return (
-            <Component
-                {...this.state}
-                now={this.props.now}
-                key={`${startDate.format('YYYY-MM-DD')}|${endDate.format('YYYY-MM-DD')}`}
-            />
+            <ScheduleCalendar {...this.state} />
         );
     }
 
     render() {
+
+        if (this.state.loading) {
+            return 'Loading...';
+        }
 
         return (
             <div className="schedule-page">
@@ -96,9 +106,6 @@ class SchedulePage extends React.Component {
                 <div className="clearfix page-options">
                     <div className="pull-left">
                         <div className="filters">
-                            <div className="view-options">
-                                {this.viewOptions}
-                            </div>
                             <div className="date-range">
                                 <DatePicker
                                     startDate={this.state.startDate}
@@ -119,12 +126,49 @@ class SchedulePage extends React.Component {
                         </div>
                     </div>
                     <div className="pull-right">
-                        <button className="btn btn-primary btn-sm">Export</button>
+                        <button className="btn btn-primary btn-sm">Reset</button>
+                        <button className="btn btn-primary btn-sm">Apply Recommendations</button>
+                        <button className="btn btn-success btn-sm">save</button>
+
                     </div>
                 </div>
 
+                <hr />
+
                 <div className="view">
-                    {this.view}
+
+                    <div className="row">
+
+                        <div className="col-lg-2">
+
+                            <h4>
+                                Pending
+                            </h4>
+                            <ul className="list-group">
+                                {this.orders}
+                            </ul>
+                        </div>
+
+                        <div className="col-lg-2">
+
+                            <h4>
+                                Scheduled
+                            </h4>
+
+                            <ul className="list-group">
+                                {this.productionRequests}
+                            </ul>
+                        </div>
+
+                        <div className="col-lg-8">
+
+                            <h4>Shifts</h4>
+
+                            {this.scheduledShifts}
+                        </div>
+
+                    </div>
+
                 </div>
 
             </div>
@@ -134,8 +178,7 @@ class SchedulePage extends React.Component {
     static get defaultProps() {
 
         return {
-            now: moment(),
-            viewOptions: ['list', 'calendar']
+            now: moment()
         };
     }
 }

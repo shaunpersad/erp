@@ -1,0 +1,56 @@
+@font-face {
+  font-family: 'icomoon';
+  src:  url('./assets/fonts/icomoon.eot?fgwlev');
+  src:  url('./assets/fonts/icomoon.eot?fgwlev#iefix') format('embedded-opentype'),
+  url('./assets/fonts/icomoon.ttf?fgwlev') format('truetype'),
+  url('./assets/fonts/icomoon.woff?fgwlev') format('woff'),
+  url('./assets/fonts/icomoon.svg?fgwlev#icomoon') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+
+[class^="icon-"], [class*=" icon-"] {
+  /* use !important to prevent issues with browser extensions that change fonts */
+  font-family: 'icomoon' !important;
+  speak: none;
+  font-style: normal;
+  font-weight: normal;
+  font-variant: normal;
+  text-transform: none;
+  //line-height: 1;
+
+  /* Better Font Rendering =========== */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-build:before {
+  content: "\e869";
+}
+.icon-event_available:before {
+  content: "\e614";
+}
+.icon-extension:before {
+  content: "\e87b";
+}
+.icon-free_breakfast:before {
+  content: "\eb44";
+}
+.icon-grid_on:before {
+  content: "\e3ec";
+}
+.icon-people:before {
+  content: "\e7fb";
+}
+.icon-home:before {
+  content: "\e88a";
+}
+.icon-local_shipping:before {
+  content: "\e558";
+}
+.icon-monetization_on:before {
+  content: "\e263";
+}
+.icon-open_with:before {
+  content: "\e89f";
+}

@@ -36,63 +36,105 @@ class MainLayout extends React.Component {
                     </Navbar.Collapse>
                 </Navbar>
 
-                <div className="container-fluid">
-                    <div className="row">
-                        <div className="col-sm-3 col-md-2 sidebar">
-                            <ul className="nav nav-sidebar">
-                                <li className="active">
-                                    <Link to="/">Overview</Link>
-                                </li>
-                                <li>
-                                    <Link to="/schedule">Schedule</Link>
-                                </li>
-                                <li>
-                                    <Link to="/inventory">Inventory</Link>
-                                </li>
-                                <li>
-                                    <Link to="/production">Production</Link>
-                                </li>
-                            </ul>
-                            <ul className="nav nav-sidebar">
-                                <li>
-                                    <Link to="/components">Components</Link>
-                                </li>
-                                <li>
-                                    <Link to="/products">Products</Link>
-                                </li>
-                                <li>
-                                    <Link to="/lines">Lines</Link>
-                                </li>
-                                <li>
-                                    <Link to="/sales-orders">Sales Orders</Link>
-                                </li>
+                <div className="sidebar-container">
 
-                            </ul>
+                    <div className="sidebar">
 
-                            <ul className="nav nav-sidebar">
-                                <li>
-                                    <Link to="/users">Users</Link>
-                                </li>
-                            </ul>
-                        </div>
+                        <ul className="nav nav-sidebar">
+                            <li>
+                                <Link to="/">
+                                    <span className="icon icon-home" />
+                                    <span className="text">
+                                            Overview
+                                        </span>
+                                </Link>
+                            </li>
+                            <li className="active">
+                                <Link to="/schedule">
+                                    <span className="icon icon-event_available" />
+                                    <span className="text">
+                                            Schedule
+                                        </span>
+                                </Link>
+                            </li>
+                            <li>
+                                <Link to="/inventory">
+                                    <span className="icon icon-grid_on" />
+                                    <span className="text">
+                                            Inventory
+                                        </span>
+                                </Link>
+                            </li>
+                            <li>
+                                <Link to="/production">
+                                    <span className="icon icon-local_shipping" />
+                                    <span className="text">
+                                            Production
+                                        </span>
+                                </Link>
+                            </li>
+                        </ul>
+                        <ul className="nav nav-sidebar">
+                            <li>
+                                <Link to="/components">
+                                    <span className="icon icon-extension" />
+                                    <span className="text">
+                                            Components
+                                        </span>
+                                </Link>
+                            </li>
+                            <li>
+                                <Link to="/products">
+                                    <span className="icon icon-free_breakfast" />
+                                    <span className="text">
+                                            Products
+                                        </span>
+                                </Link>
+                            </li>
+                            <li>
+                                <Link to="/lines">
+                                    <span className="icon icon-build" />
+                                    <span className="text">
+                                        Lines
+                                        </span>
+                                </Link>
+                            </li>
+                            <li>
+                                <Link to="/sales-orders">
+                                    <span className="icon icon-monetization_on" />
+                                    <span className="text">
+                                            Sales Orders
+                                        </span>
+                                </Link>
+                            </li>
 
-                        <div className="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+                        </ul>
 
-                            <div className="content">
-
-                                <ol className="breadcrumb">
-                                    <li className="active">Schedule</li>
-                                </ol>
-
-                                <this.props.Component />
-                            </div>
-
-                        </div>
+                        <ul className="nav nav-sidebar">
+                            <li>
+                                <Link to="/users">
+                                    <span className="icon icon-people" />
+                                    <span className="text">
+                                        Users
+                                        </span>
+                                </Link>
+                            </li>
+                        </ul>
 
                     </div>
 
-                </div>
+                    <div className="container-fluid">
+                        <div className="content">
 
+                            <ol className="breadcrumb">
+                                <li className="active">Schedule</li>
+                            </ol>
+
+                            <this.props.Component />
+                        </div>
+                    </div>
+
+                </div>
 
             </div>
         );
