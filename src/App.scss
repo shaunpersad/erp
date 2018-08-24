@@ -13,7 +13,25 @@
     padding-right: 5px;
     transition: color 50ms cubic-bezier(0.4, 0.0, 0.2, 1);
     &:hover {
+      &:not(:disabled) {
+        color: #18bc9c;
+      }
+    }
+    &:disabled {
+      opacity: 0.5;
+    }
+    &.moveable {
+      cursor: move;
+    }
+    &.link {
+      padding-left: 0;
+      padding-right: 0;
       color: #18bc9c;
+      border-bottom:1px solid #18bc9c;
+      &:hover {
+        color: #1a242f;
+        border-bottom:1px solid #1a242f;
+      }
     }
   }
 }

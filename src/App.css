@@ -11,5 +11,17 @@
   padding-left: 5px;
   padding-right: 5px;
   transition: color 50ms cubic-bezier(0.4, 0, 0.2, 1); }
-  .app .btn-bare:hover {
+  .app .btn-bare:hover:not(:disabled) {
     color: #18bc9c; }
+  .app .btn-bare:disabled {
+    opacity: 0.5; }
+  .app .btn-bare.moveable {
+    cursor: move; }
+  .app .btn-bare.link {
+    padding-left: 0;
+    padding-right: 0;
+    color: #18bc9c;
+    border-bottom: 1px solid #18bc9c; }
+    .app .btn-bare.link:hover {
+      color: #1a242f;
+      border-bottom: 1px solid #1a242f; }

@@ -2,15 +2,15 @@ import React from 'react';
 import moment from 'moment';
 import DatePicker from 'react-datepicker';
 import ReactTable from 'react-table';
-import './SchedulePage.css';
 
-import ScheduleList from './ScheduleList.jsx';
-import ScheduleCalendar from './ScheduleCalendar.jsx';
+import CreateProductionRequest from './CreateProductionRequest.jsx';
 
 import lines from './_data/lines';
 import products from './_data/products';
 import components from './_data/components';
 import orders from './_data/orders';
+
+import './SchedulePage.css';
 
 class SchedulePage extends React.Component {
 
@@ -24,6 +24,8 @@ class SchedulePage extends React.Component {
         orders: null,
         productionRequests: [],
         scheduledShifts: [],
+        productionRequest: null,
+        selectedLine: null,
         startDate: this.props.now.clone().startOf('week'),
         endDate: this.props.now.clone().endOf('week')
     };
@@ -54,13 +56,159 @@ class SchedulePage extends React.Component {
         this.setState({ expanded });
     };
 
+    onClickCreateProductionRequestFactory = order => {
+
+        return () => {
+
+            this.setState({
+                productionRequest: order ? {
+                    productId: order.productId,
+                    goal: order.quantity
+                } : {}
+            });
+        };
+    };
+
+    onClickEditProductionRequestFactory = productionRequest => {
+
+        return () => {
+
+            this.setState({ productionRequest });
+        };
+    };
+
+    onHideProductionRequestModal = () => {
+
+        this.setState({ productionRequest: null });
+    };
+
+    onProductionRequestCreated = ({ id, productId, goal }) => {
+
+        const productionRequests = [
+            {
+                id,
+                productId,
+                goal,
+                numProduced: 0
+            }
+        ].concat(this.state.productionRequests.filter(productionRequest => productionRequest.id !== id));
+
+        this.setState({
+            productionRequests,
+            productionRequest: null
+        });
+    };
+
+    onMoveOrderTop = ({ currentTarget: { value: orderId } }) => {
+
+        let top = null;
+        const orders = this.state.orders.filter(order => {
+
+            if (order.id === orderId) {
+                top = order;
+                return false;
+            }
+            return true;
+        });
+
+        this.setState({ orders: [top].concat(orders) });
+    };
+
+    onMoveOrderUp = ({ currentTarget: { value: orderId } }) => {
+
+        const orders = [];
+
+        this.state.orders.forEach(order => {
+
+            if (order.id === orderId) {
+                const previous = orders.pop();
+                return orders.push(order, previous);
+            }
+            orders.push(order);
+        });
+
+        this.setState({ orders });
+    };
+
+    onMoveOrderDown = ({ currentTarget: { value: orderId } }) => {
+
+        const orders = [];
+        let down = null;
+
+        this.state.orders.forEach(order => {
+
+            if (down) {
+                orders.pop();
+            }
+            orders.push(order);
+            if (down) {
+                orders.push(down);
+                down = null;
+            }
+            if (order.id === orderId) {
+                down = order;
+            }
+        });
+
+        this.setState({ orders });
+    };
+
+    onMoveOrderBottom = ({ currentTarget: { value: orderId } }) => {
+
+        let bottom = null;
+        const orders = this.state.orders.filter((order, i) => {
+
+            if (order.id === orderId) {
+                bottom = order;
+                return false;
+            }
+            return true;
+        });
+
+        orders.push(bottom);
+
+        this.setState({ orders });
+    };
+
+    onChangeSelectedLine = ({ currentTarget: { value: line, checked } }) => {
+
+        this.setState({
+            selectedLine: checked ? line : null
+        });
+    };
+
+    forEachDate = fn => {
+
+        const { startDate, endDate } = this.state;
+        const format = 'YYYY-MM-DD';
+
+        const currentDate = startDate.clone();
+        const end = endDate.clone().add(1, 'day').format(format);
+
+        while (end !== currentDate.format(format)) {
+
+            const date = currentDate.format(format);
+            currentDate.add(1, 'day');
+
+            fn(date);
+        }
+    };
+
     get orders() {
 
         const columns = [
             {
                 Header: 'Order',
                 className: 'first',
-                accessor: 'id'
+                accessor: 'id',
+                Cell: row => (
+                    <button
+                        className="btn-bare link"
+                        onClick={this.onClickCreateProductionRequestFactory(row.original)}
+                    >
+                        {row.value}
+                    </button>
+                )
             },
             {
                 Header: 'Product',
@@ -73,26 +221,54 @@ class SchedulePage extends React.Component {
             {
                 Header: 'Due',
                 accessor: 'dateDue'
-            },
-            {
-                Header: '',
-                accessor: '',
-                id: 'actions',
-                Cell: row => (
-                    <div>
-                        <button className="btn-bare">
-                            <span className="icon-control_point" />
-                        </button>
-                        <button className="btn-bare">
-                            <span className="icon-lightbulb_outline" />
-                        </button>
-                        <button className="btn-bare">
-                            <span className="icon-swap_vert" />
-                        </button>
-                    </div>
-                )
             }
         ];
+
+        if (this.state.expanded === 'pending') {
+            columns.push(
+                {
+                    Header: 'Priority',
+                    accessor: '',
+                    id: 'actions',
+                    Cell: row => (
+                        <div>
+                            <button
+                                value={row.original.id}
+                                className="btn-bare"
+                                disabled={row.index === 0}
+                                onClick={this.onMoveOrderTop}
+                            >
+                                <span className="icon-move_up" />
+                            </button>
+                            <button
+                                value={row.original.id}
+                                className="btn-bare"
+                                disabled={row.index === 0}
+                                onClick={this.onMoveOrderUp}
+                            >
+                                <span className="icon-keyboard_arrow_up" />
+                            </button>
+                            <button
+                                value={row.original.id}
+                                className="btn-bare"
+                                disabled={row.index === this.state.orders.length - 1}
+                                onClick={this.onMoveOrderDown}
+                            >
+                                <span className="icon-keyboard_arrow_down" />
+                            </button>
+                            <button
+                                value={row.original.id}
+                                className="btn-bare"
+                                disabled={row.index === this.state.orders.length - 1}
+                                onClick={this.onMoveOrderBottom}
+                            >
+                                <span className="icon-move_down" />
+                            </button>
+                        </div>
+                    )
+                }
+            );
+        }
 
         return (
             <ReactTable
@@ -109,33 +285,54 @@ class SchedulePage extends React.Component {
             {
                 Header: 'Product',
                 className: 'first',
-                accessor: 'productId'
+                accessor: 'productId',
+                Cell: row => (
+                    <button
+                        className="btn-bare link"
+                        onClick={this.onClickEditProductionRequestFactory(row.original)}
+                    >
+                        {row.value}
+                    </button>
+                )
             },
             {
                 Header: 'Goal',
-                accessor: 'quantity'
+                accessor: 'goal'
             },
             {
                 Header: '%',
                 id: 'percentCompleted',
-                accessor: row => row.numProduced / row.quantity
-            },
-            {
-                Header: '',
-                accessor: '',
-                id: 'actions',
-                Cell: row => (
-                    <div>
-                        <button className="btn-bare">
-                            <span className="icon-remove_circle_outline" />
-                        </button>
-                        <button className="btn-bare">
-                            <span className="icon-swap_horiz" />
-                        </button>
-                    </div>
-                )
+                accessor: row => row.numProduced / row.goal
             }
         ];
+
+        if (this.state.expanded !== 'pending') {
+
+            columns.push(
+                {
+                    Header: 'Schedule',
+                    accessor: '',
+                    id: 'actions',
+                    Cell: row => (
+                        <div>
+                            <button
+                                value={row.original.id}
+                                className="btn-bare"
+                            >
+                                <span className="icon-lightbulb_outline" />
+                            </button>
+                            <button
+                                value={row.original.id}
+                                disabled={!this.state.selectedLine}
+                                className="btn-bare"
+                            >
+                                <span className="icon-keyboard_arrow_right" />
+                            </button>
+                        </div>
+                    )
+                }
+            );
+        }
 
         return (
             <ReactTable
@@ -144,28 +341,109 @@ class SchedulePage extends React.Component {
             />
         );
 
-
-        if (this.state.productionRequests.length === 0) {
-
-            return (
-                <li key="none" className="list-group-item">
-                    None
-                </li>
-            );
-        }
-
-        return this.state.productionRequests.map(productionRequest => (
-            <li key={productionRequest.id} className="list-group-item">
-                <span className="badge">{productionRequest.goal}</span>
-                {productionRequest.productId}
-            </li>
-        ));
     }
 
     get scheduledShifts() {
 
+        const { lines, scheduledShifts, selectedLine } = this.state;
+        const types = ['day', 'night'];
+        const columns = [
+            {
+                Header: 'Line',
+                className: 'first',
+                accessor: 'line',
+                Cell: row => (
+                    <label>
+                        <input
+                            type="checkbox"
+                            value={row.value}
+                            checked={selectedLine === row.value}
+                            onChange={this.onChangeSelectedLine}
+                        />
+                        {row.value}
+                    </label>
+                )
+            }
+        ];
+
+        const data = [];
+
+        lines.forEach(line => {
+
+            const shifts = {};
+
+            this.forEachDate(date => {
+
+                shifts[date] = [];
+
+                types.forEach(type => {
+
+                    for(let position = 0; position < 3; position++) {
+
+                        shifts[date].concat(scheduledShifts.filter(shift => {
+
+                            return shift.line === line && shift.date === date && shift.type === type && shift.position === position;
+                        }));
+                    }
+                });
+            });
+
+            data.push({ line, shifts });
+        });
+
+        this.forEachDate(date => {
+
+            columns.push({
+                Header: date,
+                className: 'date',
+                id: date,
+                accessor: row => row.shifts[date] ? row.shifts[date].map(shift => shift.productId) : ''
+            });
+        });
+
+
         return (
-            <ScheduleCalendar {...this.state} />
+            <ReactTable
+                filterable={false}
+                sortable={false}
+                showPagination={false}
+                data={data}
+                columns={columns}
+                minRows={data.length}
+                defaultSorted={[
+                    {
+                        id: 'line',
+                        desc: false
+                    },
+                    {
+                        id: 'type',
+                        desc: false
+                    }
+                ]}
+            />
+        );
+    }
+
+    get productionRequest() {
+
+        const { productionRequest } = this.state;
+
+        if (!productionRequest) {
+            return null;
+        }
+
+        const props = {
+            products,
+            onHide: this.onHideProductionRequestModal,
+            onCreated: this.onProductionRequestCreated
+        };
+
+        if (productionRequest) {
+            Object.assign(props, productionRequest);
+        }
+
+        return (
+            <CreateProductionRequest {...props} />
         );
     }
 
@@ -179,6 +457,8 @@ class SchedulePage extends React.Component {
 
         return (
             <div className="schedule-page">
+
+                {this.productionRequest}
 
                 <div className="clearfix page-options">
                     <div className="pull-left">
@@ -204,8 +484,17 @@ class SchedulePage extends React.Component {
                         </div>
                     </div>
                     <div className="pull-left">
-                        <button className="btn btn-primary btn-sm"><span className="icon-control_point" /> Add Product to Schedule</button>
-                        <button className="btn btn-primary btn-sm"><span className="icon-lightbulb_outline" />  Apply All Recommendations</button>
+                        <button
+                            className="btn btn-primary btn-sm"
+                            onClick={this.onClickCreateProductionRequestFactory()}
+                        >
+                            <span className="icon-control_point" /> Add Product to Production
+                        </button>
+                        <button
+                            className="btn btn-primary btn-sm"
+                        >
+                            <span className="icon-lightbulb_outline" /> Apply Recommendations
+                        </button>
                     </div>
                     <div className="pull-right">
                         <button disabled={!this.state.changed} className="btn btn-default btn-sm">Reset</button>
@@ -224,8 +513,7 @@ class SchedulePage extends React.Component {
 
                             <h4>
                                 <button className="btn-bare" value="pending" onClick={this.onChangeExpanded}>
-                                    Pending
-                                    <span className="icon-settings_ethernet" />
+                                    Open Orders <span className="icon-settings_ethernet" />
                                 </button>
                             </h4>
                             <ul className="list-group">
@@ -237,8 +525,7 @@ class SchedulePage extends React.Component {
 
                             <h4>
                                 <button className="btn-bare" value="scheduled" onClick={this.onChangeExpanded}>
-                                    Scheduled
-                                    <span className="icon-settings_ethernet" />
+                                    Products For Production <span className="icon-settings_ethernet" />
                                 </button>
                             </h4>
 
@@ -251,8 +538,7 @@ class SchedulePage extends React.Component {
 
                             <h4>
                                 <button className="btn-bare" value="shifts" onClick={this.onChangeExpanded}>
-                                    Shifts
-                                    <span className="icon-settings_ethernet" />
+                                    Shifts <span className="icon-settings_ethernet" />
                                 </button>
                             </h4>
 
