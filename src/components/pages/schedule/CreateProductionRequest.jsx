@@ -31,7 +31,7 @@ class CreateProductionRequest extends React.Component {
         e.preventDefault();
 
         this.props.onCreated({
-            id: this.state.id,
+            id: this.props.id || `${this.state.product.id}/${this.state.id}`,
             productId: this.state.product ? this.state.product.id : null,
             goal: Number(this.state.goal)
         });
@@ -44,7 +44,7 @@ class CreateProductionRequest extends React.Component {
 
                     <Modal show={true} onHide={this.props.onHide} bsSize="small">
                         <Modal.Header closeButton>
-                            <Modal.Title>{this.props.id ? 'Edit Production Goal' : 'Add Product to Production'}</Modal.Title>
+                            <Modal.Title>{this.props.id ? 'Edit Production Goal' : 'Add Product for Production'}</Modal.Title>
                         </Modal.Header>
                         <Modal.Body>
 

@@ -19,6 +19,7 @@
     }
     &:disabled {
       opacity: 0.5;
+      cursor: not-allowed;
     }
     &.moveable {
       cursor: move;
@@ -33,5 +34,20 @@
         border-bottom:1px solid #1a242f;
       }
     }
+  }
+  .ReactTable {
+    .rt-td:not(.first) {
+      text-align: center;
+    }
+  }
+  label {
+    input[type="checkbox"] {
+      margin-right: 5px;
+    }
+  }
+  ul, ol {
+    padding-left: 0;
+    margin-left: 0;
+    list-style: none;
   }
 }

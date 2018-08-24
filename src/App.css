@@ -14,7 +14,8 @@
   .app .btn-bare:hover:not(:disabled) {
     color: #18bc9c; }
   .app .btn-bare:disabled {
-    opacity: 0.5; }
+    opacity: 0.5;
+    cursor: not-allowed; }
   .app .btn-bare.moveable {
     cursor: move; }
   .app .btn-bare.link {
@@ -25,3 +26,14 @@
     .app .btn-bare.link:hover {
       color: #1a242f;
       border-bottom: 1px solid #1a242f; }
+
+.app .ReactTable .rt-td:not(.first) {
+  text-align: center; }
+
+.app label input[type="checkbox"] {
+  margin-right: 5px; }
+
+.app ul, .app ol {
+  padding-left: 0;
+  margin-left: 0;
+  list-style: none; }
