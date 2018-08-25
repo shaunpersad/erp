@@ -32,8 +32,3 @@
 
 .app label input[type="checkbox"] {
   margin-right: 5px; }
-
-.app ul, .app ol {
-  padding-left: 0;
-  margin-left: 0;
-  list-style: none; }

@@ -2,6 +2,7 @@ import React from 'react';
 import moment from 'moment';
 import DatePicker from 'react-datepicker';
 import ReactTable from 'react-table';
+import uuid from 'uuid';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
 import CreateProductionRequest from './CreateProductionRequest.jsx';
@@ -215,12 +216,12 @@ class SchedulePage extends React.Component {
 
             if (!day[date] || day[date].length < 3) {
 
-                scheduled = { date, type: 'day', position: day[date] ? day[date].length : 0 };
+                scheduled = { date, type: 'day' };
                 break;
             }
 
             if (!night[date] || night[date].length < 3) {
-                scheduled = { date, type: 'night', position: night[date] ? night[date].length : 0 };
+                scheduled = { date, type: 'night' };
             }
 
             currentDate.add(1, 'day');
@@ -234,16 +235,76 @@ class SchedulePage extends React.Component {
 
         this.setState({
             failedToSchedule: null,
-            scheduledShifts: [
-                {
-                    productionRequestId,
-                    numProduced: 0,
-                    line: this.state.selectedLine,
-                    date: scheduled.date,
-                    type: scheduled.type,
-                    position: scheduled.position
-                }
-            ].concat(this.state.scheduledShifts)
+            scheduledShifts: this.state.scheduledShifts.concat({
+                productionRequestId,
+                numProduced: 0,
+                line: this.state.selectedLine,
+                date: scheduled.date,
+                type: scheduled.type,
+                id: uuid.v4()
+            })
+        });
+
+    };
+
+    onScheduledShiftReorder = ({source, destination, draggableId: sourceId}) => {
+
+        if (!destination) {
+            return;
+        }
+
+        const [ sourceLine, sourceDate, sourceType ] = source.droppableId.split('/');
+        const [ destinationLine, destinationDate, destinationType ] = destination.droppableId.split('/');
+        const sourceShifts = [];
+        let destinationShifts = [];
+        let scheduledShifts = [];
+        let movedShift = null;
+
+        this.state.scheduledShifts.forEach(shift => {
+
+            if (shift.id === sourceId) {
+
+                movedShift = Object.assign({}, shift, {
+                    line: destinationLine,
+                    date: destinationDate,
+                    type: destinationType
+                });
+            }
+
+            if (shift.line === destinationLine && shift.date === destinationDate && shift.type === destinationType) {
+
+                return destinationShifts.push(shift);
+            }
+
+            if (shift.line === sourceLine && shift.date === sourceDate && shift.type === sourceType) {
+
+                return sourceShifts.push(shift);
+            }
+
+            scheduledShifts.push(shift);
+        });
+
+        sourceShifts.splice(source.index, 1);
+        destinationShifts.splice(destination.index, 0, movedShift);
+
+        if (source.droppableId === destination.droppableId) {
+
+            destinationShifts = destinationShifts.filter(shift => shift.id !== sourceId || shift === movedShift);
+
+        } else {
+
+            scheduledShifts = scheduledShifts.concat(sourceShifts);
+        }
+
+        if (destinationShifts.length > 3) {
+            return;
+        }
+
+        scheduledShifts = scheduledShifts.concat(destinationShifts);
+
+
+        this.setState({ scheduledShifts }, () => {
+            console.log(this.state.scheduledShifts);
         });
 
     };
@@ -261,6 +322,33 @@ class SchedulePage extends React.Component {
 
             fn(date);
         }
+    };
+
+    makeDraggableShift = (shift, index) => {
+
+        if (!shift) {
+            return null;
+        }
+
+        return (
+            <Draggable
+                draggableId={shift.id}
+                index={index}
+                key={shift.id}
+            >
+                {(provided, snapshot) => (
+                    <div
+                        ref={provided.innerRef}
+                        {...provided.draggableProps}
+                        {...provided.dragHandleProps}
+                    >
+                        <span className="label label-info">
+                            {shift.productionRequestId.split('/')[0]} ({shift.numProduced})
+                        </span>
+                    </div>
+                )}
+            </Draggable>
+        );
     };
 
     get orders() {
@@ -466,18 +554,16 @@ class SchedulePage extends React.Component {
                 Cell: row => (
                     <div>
                         {types.map(type => (
-                            <div key={type} className={`shifts ${type}`}>
-                                <span className={`icon-brightness_${type === 'day' ? 'low' : '2'}`} />
-                                <ol>
-                                    {shifts[row.value][date][type].map(shift => (
-                                        <li key={shift.position}>
-                                        <span className="label label-info">
-                                            {shift.productionRequestId.split('/')[0]}
-                                        </span>
-                                        </li>
-                                    ))}
-                                </ol>
-                            </div>
+                            <Droppable key={type} droppableId={`${row.value}/${date}/${type}`}>
+                                {(provided, snapshot) => (
+
+                                    <div ref={provided.innerRef} key={type} className={`shifts ${type}`}>
+                                        <span className={`icon-brightness_${type === 'day' ? 'low' : '2'}`} />
+                                        {shifts[row.value][date][type].map(this.makeDraggableShift)}
+                                        {provided.placeholder}
+                                    </div>
+                                )}
+                            </Droppable>
                         ))}
                     </div>
                 )
@@ -621,7 +707,7 @@ class SchedulePage extends React.Component {
                                 </button>
                             </h4>
 
-                            <DragDropContext>
+                            <DragDropContext onDragEnd={this.onScheduledShiftReorder}>
                                 {this.scheduledShifts}
                             </DragDropContext>
                         </div>
