@@ -27,11 +27,17 @@
     &.link {
       padding-left: 0;
       padding-right: 0;
-      color: #18bc9c;
-      border-bottom:1px solid #18bc9c;
+      color: #2c3e50;
+      border-bottom: 1px solid #2c3e50;
+
+
+      &.text-warning {
+        color: #f39c12;
+        border-bottom-color: #f39c12;
+      }
       &:hover {
-        color: #1a242f;
-        border-bottom:1px solid #1a242f;
+        color: #18bc9c;
+        border-bottom-color: #18bc9c;
       }
     }
   }

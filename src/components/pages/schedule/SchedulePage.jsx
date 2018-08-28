@@ -1,9 +1,10 @@
 import React from 'react';
 import moment from 'moment';
+import uuid from 'uuid';
 import DatePicker from 'react-datepicker';
 import ReactTable from 'react-table';
-import uuid from 'uuid';
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
+import { Modal } from 'react-bootstrap';
 
 import CreateProductionRequest from './CreateProductionRequest.jsx';
 
@@ -31,6 +32,7 @@ class SchedulePage extends React.Component {
         productionRequest: null,
         selectedLine: null,
         failedToSchedule: null,
+        detailView: null,
         startDate: this.props.now.clone().startOf('week'),
         endDate: this.props.now.clone().endOf('week')
     };
@@ -214,6 +216,12 @@ class SchedulePage extends React.Component {
 
             const date = currentDate.format(format);
 
+            currentDate.add(1, 'day');
+
+            if (currentDate.day() === 1) {
+                continue;
+            }
+
             if (!day[date] || day[date].length < 3) {
 
                 scheduled = { date, type: 'day' };
@@ -223,8 +231,6 @@ class SchedulePage extends React.Component {
             if (!night[date] || night[date].length < 3) {
                 scheduled = { date, type: 'night' };
             }
-
-            currentDate.add(1, 'day');
         }
 
         if (!scheduled) {
@@ -306,12 +312,19 @@ class SchedulePage extends React.Component {
 
     };
 
+    onHideDetailView = () => {
+
+        this.setState({ detailView: null });
+    };
+
     onClickShowOrder = ({ currentTarget: { value: orderId } }) => {
 
+        this.setState({ detailView: orderId });
     };
 
     onClickShowProduct = ({ currentTarget: { value: productId } }) => {
 
+        this.setState({ detailView: productId });
     };
 
     forEachDate = fn => {
@@ -322,8 +335,13 @@ class SchedulePage extends React.Component {
 
         while (end !== currentDate.format(format)) {
 
+
             const date = currentDate.format(format);
             currentDate.add(1, 'day');
+
+            if (currentDate.day() === 1) {
+                continue;
+            }
 
             fn(date);
         }
@@ -359,6 +377,101 @@ class SchedulePage extends React.Component {
         );
     };
 
+    // createOrderStatuses = () => {
+    //
+    //     const products = [].concat(this.state.products);
+    //     const components = [].concat(this.state.components);
+    //     const orderStatuses = {};
+    //
+    //     this.state.orders.forEach(order => {
+    //
+    //         const product = products.find(product => product.id === order.productId);
+    //         const productComponents = components.filter(component => !!product.components[component.id]);
+    //         const dateDue = moment(order.dateDue, format);
+    //         let numProduced = 0;
+    //         let scheduled = 0;
+    //         let minimumCanMake = order.quantity;
+    //         let willMake = true;
+    //
+    //         orderStatuses[order.id] = { color: 'red', messages: [] };
+    //
+    //         this.state.scheduledShifts.forEach(shift => {
+    //
+    //             if (shift.productId === order.productId) {
+    //
+    //                 numProduced+= shift.numProduced;
+    //             }
+    //         });
+    //
+    //         if (numProduced >= order.quantity) {
+    //             orderStatuses[order.id].color = 'green';
+    //             orderStatuses[order.id].messages.push(`Produced ${numProduced}`);
+    //             return;
+    //         }
+    //
+    //         this.state.productionRequests.forEach(productionRequest => {
+    //
+    //
+    //
+    //         });
+    //
+    //
+    //
+    //         if (dateDue.isBefore(this.props.now)) {
+    //             orderStatuses[order.id].color = 'yellow';
+    //             orderStatuses[order.id].messages.push(`Order was due ${dateDue.fromNow()}`);
+    //         }
+    //
+    //         Object.keys(product.components).forEach(componentId => {
+    //
+    //             const requiredByProduct = product.components[componentId];
+    //             const requiredByOrder = requiredByProduct * order.quantity;
+    //             const component = productComponents.find(component => component.id === componentId);
+    //             const onHand = component ? component.onHand : 0;
+    //
+    //             if (requiredByOrder > onHand) {
+    //
+    //                 orderStatuses[order.id].messages.push(`${componentId}: Not enough on hand to complete the order.`);
+    //                 orderStatuses[order.id].messages.push(`${componentId}: ${requiredByOrder} required, ${onHand} on hand.`);
+    //
+    //                 // TODO: account for components coming in at a later date
+    //
+    //                 const minimum = Math.floor(onHand / requiredByProduct);
+    //
+    //                 if (minimum < minimumCanMake) {
+    //                     minimumCanMake = minimum;
+    //                 }
+    //             }
+    //         });
+    //
+    //         if (minimumCanMake < order.quantity) {
+    //             willMake = false;
+    //             status.messages.push(`Can make ${minimumCanMake} out of ${order.quantity}.`);
+    //
+    //             if ((minimumCanMake + product.onHand) > order.quantity) {
+    //
+    //                 const willRemove = order.quantity - minimumCanMake;
+    //                 willMake = true;
+    //                 orderStatuses[order.id].color = 'yellow';
+    //                 orderStatuses[order.id].messages.push(`Can use ${willRemove} from safety to fulfill order.`);
+    //                 product.onHand-= willRemove;
+    //             }
+    //         }
+    //
+    //         if (willMake) {
+    //
+    //             Object.keys(product.components).forEach(componentId => {
+    //
+    //                 const requiredByProduct = product.components[componentId];
+    //                 const component = productComponents.find(component => component.id === componentId);
+    //                 component.quantity-= (willMake * requiredByProduct);
+    //             });
+    //         }
+    //
+    //     });
+    //
+    // };
+
     get orders() {
 
         const columns = [
@@ -369,7 +482,7 @@ class SchedulePage extends React.Component {
                 minWidth: 50,
                 Cell: row => (
                     <button
-                        className="btn-bare link"
+                        className="btn-bare link text-warning"
                         onClick={this.onClickShowOrder}
                         value={row.value}
                     >
@@ -466,6 +579,8 @@ class SchedulePage extends React.Component {
                 sortable={false}
                 columns={columns}
                 data={this.state.orders}
+                showPagination={false}
+                minRows={this.state.orders.length || 3}
             />
         );
     }
@@ -480,7 +595,7 @@ class SchedulePage extends React.Component {
                 Cell: row => (
                     <div>
                         <button
-                            className="btn-bare link"
+                            className="btn-bare link text-warning"
                             onClick={this.onClickShowProduct}
                             value={row.value}
                         >
@@ -523,14 +638,12 @@ class SchedulePage extends React.Component {
             }
         ];
 
-        if (this.state.expanded !== 'pending') {
-
-        }
-
         return (
             <ReactTable
                 columns={columns}
                 data={this.state.productionRequests}
+                showPagination={false}
+                minRows={this.state.productionRequests.length || 3}
             />
         );
 
@@ -580,6 +693,8 @@ class SchedulePage extends React.Component {
 
         scheduledShifts.forEach(shift => {
 
+            console.log(shift);
+
             shifts[shift.line][shift.date][shift.type].push(shift);
         });
 
@@ -615,9 +730,9 @@ class SchedulePage extends React.Component {
             <ReactTable
                 filterable={false}
                 sortable={false}
-                showPagination={false}
                 data={lines}
                 columns={columns}
+                showPagination={false}
                 minRows={lines.length}
                 defaultSorted={[
                     {
@@ -652,6 +767,74 @@ class SchedulePage extends React.Component {
         );
     }
 
+    get detailView() {
+
+        return (
+            <Modal show={!!this.state.detailView} onHide={this.onHideDetailView}>
+                <Modal.Header closeButton>
+                    <Modal.Title>{this.state.detailView}</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <div className="panel panel-default">
+                        <div className="panel-body">
+                            Details go here, including the status and description of any issues.
+                        </div>
+                    </div>
+
+                    <div className="panel panel-default">
+                        <div className="panel-body">
+
+                            <div className="timeline">
+
+                                <div className="line" />
+                                <ul className="timeline">
+                                    <li>
+                                        <div className="clearfix">
+                                            <div className="date pull-left">
+                                                1 week ago
+                                            </div>
+                                            <div className="events pull-left">
+                                                <ul>
+                                                    <li>
+                                                        <span>•</span>
+                                                        An event happened, e.g. new orders fulfilled
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </li>
+                                    <li>
+                                        <div className="clearfix">
+                                            <div className="date pull-left">
+                                                2 days ago
+                                            </div>
+                                            <div className="events pull-left">
+                                                <ul>
+                                                    <li>
+                                                        <span>•</span>
+                                                        An event happened, e.g. inventory changed
+                                                    </li>
+                                                    <li>
+                                                        <span>•</span>
+                                                        Another event
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </li>
+                                </ul>
+
+                            </div>
+
+                        </div>
+                    </div>
+
+                </Modal.Body>
+            </Modal>
+        );
+
+    }
+
     render() {
 
         if (this.state.loading) {
@@ -663,32 +846,12 @@ class SchedulePage extends React.Component {
         return (
             <div className="schedule-page">
 
+                {this.detailView}
                 {this.productionRequest}
 
                 <div className="clearfix page-options">
                     <div className="pull-left">
-                        <div className="filters">
-                            <div className="date-range">
-                                <DatePicker
-                                    startDate={this.state.startDate}
-                                    endDate={this.state.endDate}
-                                    className="form-control"
-                                    selected={this.state.startDate}
-                                    onSelect={this.onChangeStartDate}
-                                />
-                                <div>-</div>
-                                <DatePicker
-                                    startDate={this.state.startDate}
-                                    endDate={this.state.endDate}
-                                    className="form-control"
-                                    selected={this.state.endDate}
-                                    onSelect={this.onChangeEndDate}
-                                />
-                            </div>
 
-                        </div>
-                    </div>
-                    <div className="pull-left">
                         <button
                             className="btn btn-primary btn-sm"
                             onClick={this.onClickCreateProductionRequestFactory()}
@@ -700,6 +863,7 @@ class SchedulePage extends React.Component {
                         >
                             <span className="icon-lightbulb_outline" /> Apply Recommendations
                         </button>
+
                     </div>
                     <div className="pull-right">
                         <button disabled={!this.state.changed} className="btn btn-default btn-sm">Reset</button>
@@ -709,6 +873,54 @@ class SchedulePage extends React.Component {
                 </div>
 
                 <hr />
+
+                <div className="clearfix page-options">
+
+                    <div className="pull-left">
+                        <ul className="legend">
+                            <li>
+                                <span className="label label-warning" />
+                                Action required
+                            </li>
+                            <li>
+                                <span className="label label-info" />
+                                In progress
+                            </li>
+                            <li>
+                                <span className="label label-success" />
+                                Completed
+                            </li>
+                            <li>
+                                <span className="label label-danger" />
+                                Blocked
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div className="pull-right">
+                        <div className="filters">
+                            <div className="date-range">
+                                <DatePicker
+                                    startDate={this.state.startDate}
+                                    endDate={this.state.endDate}
+                                    className="form-control"
+                                    selected={this.state.startDate}
+                                    onSelect={this.onChangeStartDate}
+                                />
+                                <div className="divider">-</div>
+                                <DatePicker
+                                    startDate={this.state.startDate}
+                                    endDate={this.state.endDate}
+                                    className="form-control"
+                                    selected={this.state.endDate}
+                                    onSelect={this.onChangeEndDate}
+                                />
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
 
                 <div className="view">
 

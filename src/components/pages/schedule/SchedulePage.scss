@@ -17,12 +17,12 @@
     }
     .date-range {
 
-      margin-left: 5px;
-
       > div {
+        display: inline-block;
+      }
+      .divider {
         padding-left: 5px;
         padding-right: 5px;
-        display: inline-block;
       }
 
       .react-datepicker-wrapper {
@@ -47,12 +47,18 @@
     padding-left: 10px;
   }
 
-  .pull-left, .pull-right {
+  .pull-left {
+    button {
+      margin-right: 5px;
+    }
+  }
+  .pull-right {
     button {
       margin-left: 5px;
     }
   }
   .view {
+    padding-top: 15px;
     h4 {
       text-align: center;
       .btn-bare span {
@@ -63,6 +69,22 @@
     > .row {
       > div {
         transition: width 300ms cubic-bezier(0.0, 0.0, 0.2, 1);
+      }
+    }
+  }
+  ul.legend {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    li {
+      display: inline-block;
+      padding-right: 15px;
+      span {
+        width: 10px;
+        height: 10px;
+        display: inline-block;
+        padding: 0;
+        margin-right: 5px;
       }
     }
   }
@@ -89,6 +111,43 @@
     }
     &.day {
       margin-bottom: 10px;
+    }
+  }
+}
+
+.timeline {
+  position: relative;
+  .line {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 100px;
+    width: 1px;
+    border-right: 1px solid #18bc9c;
+  }
+  ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  > ul > li > div > div {
+    padding: 10px;
+  }
+  .date {
+    width: 100px;
+    text-align: right;
+  }
+  .events {
+    ul {
+      li {
+        position: relative;
+        span {
+          color: #18bc9c;
+          position: absolute;
+          top: 0;
+          left: -14px;
+        }
+      }
     }
   }
 }
