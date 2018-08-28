@@ -27,8 +27,25 @@
       color: #1a242f;
       border-bottom: 1px solid #1a242f; }
 
-.app .ReactTable .rt-td:not(.first) {
-  text-align: center; }
+.app .ReactTable {
+  overflow: auto; }
+  .app .ReactTable .rt-td:not(.first) {
+    text-align: center; }
+  .app .ReactTable .rt-table {
+    overflow: visible !important; }
+  .app .ReactTable .rt-thead {
+    position: sticky;
+    top: 0;
+    background-color: white;
+    z-index: 2; }
+  .app .ReactTable .rt-tbody {
+    overflow: visible !important; }
+  .app .ReactTable .sticky {
+    position: sticky !important;
+    left: 0;
+    top: 0;
+    z-index: 1;
+    background-color: white; }
 
 .app label input[type="checkbox"] {
   margin-right: 5px; }

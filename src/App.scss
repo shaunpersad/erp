@@ -36,8 +36,28 @@
     }
   }
   .ReactTable {
+    overflow: auto;
     .rt-td:not(.first) {
       text-align: center;
+    }
+    .rt-table {
+      overflow: visible !important;
+    }
+    .rt-thead {
+      position: sticky;
+      top: 0;
+      background-color: white;
+      z-index: 2;
+    }
+    .rt-tbody {
+      overflow: visible !important;
+    }
+    .sticky {
+      position: sticky !important;
+      left: 0;
+      top: 0;
+      z-index: 1;
+      background-color: white;
     }
   }
   label {

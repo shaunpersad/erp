@@ -302,10 +302,15 @@ class SchedulePage extends React.Component {
 
         scheduledShifts = scheduledShifts.concat(destinationShifts);
 
+        this.setState({ scheduledShifts });
 
-        this.setState({ scheduledShifts }, () => {
-            console.log(this.state.scheduledShifts);
-        });
+    };
+
+    onClickShowOrder = ({ currentTarget: { value: orderId } }) => {
+
+    };
+
+    onClickShowProduct = ({ currentTarget: { value: productId } }) => {
 
     };
 
@@ -342,9 +347,12 @@ class SchedulePage extends React.Component {
                         {...provided.draggableProps}
                         {...provided.dragHandleProps}
                     >
-                        <span className="label label-info">
+                        <div className="label label-info">
+                            <button className="btn-bare">
+                                <span className="icon-close" />
+                            </button>
                             {shift.productionRequestId.split('/')[0]} ({shift.numProduced})
-                        </span>
+                        </div>
                     </div>
                 )}
             </Draggable>
@@ -358,7 +366,16 @@ class SchedulePage extends React.Component {
                 Header: 'Order',
                 className: 'first',
                 accessor: 'id',
-                minWidth: 50
+                minWidth: 50,
+                Cell: row => (
+                    <button
+                        className="btn-bare link"
+                        onClick={this.onClickShowOrder}
+                        value={row.value}
+                    >
+                        {row.value}
+                    </button>
+                )
             }
         ];
 
@@ -369,12 +386,21 @@ class SchedulePage extends React.Component {
                     Header: 'Product',
                     accessor: 'productId',
                     Cell: row => (
-                        <button
-                            className="btn-bare link"
-                            onClick={this.onClickCreateProductionRequestFactory(row.original)}
-                        >
-                            {row.value}
-                        </button>
+                        <div>
+                            <button
+                                className="btn-bare link"
+                                onClick={this.onClickShowProduct}
+                                value={row.value}
+                            >
+                                {row.value}
+                            </button>
+                            <button
+                                className="btn-bare"
+                                onClick={this.onClickCreateProductionRequestFactory(row.original)}
+                            >
+                                <span className="icon-trending_flat" />
+                            </button>
+                        </div>
                     )
                 },
                 {
@@ -394,7 +420,7 @@ class SchedulePage extends React.Component {
                 {
                     Header: 'Priority',
                     accessor: '',
-                    id: 'actions',
+                    id: 'priority',
                     Cell: row => (
                         <div>
                             <button
@@ -455,7 +481,8 @@ class SchedulePage extends React.Component {
                     <div>
                         <button
                             className="btn-bare link"
-                            onClick={this.onClickEditProductionRequestFactory(row.original)}
+                            onClick={this.onClickShowProduct}
+                            value={row.value}
                         >
                             {row.value}
                         </button>
@@ -481,7 +508,18 @@ class SchedulePage extends React.Component {
             {
                 Header: 'Goal',
                 accessor: 'goal',
-                minWidth: 50
+                minWidth: 75,
+                Cell: row => (
+                    <div>
+                        {row.value}
+                        <button
+                            className="btn-bare"
+                            onClick={this.onClickEditProductionRequestFactory(row.original)}
+                        >
+                            <span className="icon-mode_edit" />
+                        </button>
+                    </div>
+                )
             }
         ];
 
@@ -505,7 +543,8 @@ class SchedulePage extends React.Component {
         const columns = [
             {
                 Header: 'Line',
-                className: 'first',
+                className: 'sticky',
+                headerClassName: 'sticky',
                 id: 'line',
                 accessor: line => line,
                 Cell: row => (
@@ -551,6 +590,7 @@ class SchedulePage extends React.Component {
                 className: 'date',
                 id: date,
                 accessor: '',
+                minWidth: 120,
                 Cell: row => (
                     <div>
                         {types.map(type => (
